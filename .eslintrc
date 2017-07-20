@@ -1,0 +1,17 @@
+{
+  "extends": "plugin:react/recommended",
+  "plugins": [
+    "react"
+  ],
+  "env":{
+    "browser": true,
+    "es6": true,
+  },
+  "rules": {
+    "require-jsdoc": 0,
+    "indent": ["error", 2]
+  },
+   "parserOptions": {
+      "sourceType": "module",
+   }
+}
