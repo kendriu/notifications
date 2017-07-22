@@ -21,7 +21,8 @@ class WebsocketServer(websocket.WebSocketServerProtocol):
         self.factory.unregister(self)
 
     def onMessage(self, payload, isBinary):
-        self.factory.communicate(self, payload, isBinary)
+        if payload:
+            self.factory.communicate(self, payload, isBinary)
 
 
 class Factory(websocket.WebSocketServerFactory):

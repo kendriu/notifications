@@ -45,7 +45,9 @@ class App extends React.Component {
   _sendNotification(event) {
     event.preventDefault();
     let message = event.target.getElementsByTagName('textarea')[0].value;
-    this._sendMessage(message);
+    if (message) {
+      this._sendMessage(message);
+    }
   }
 
   _addNotification (event) {
