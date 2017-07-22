@@ -1,35 +1,60 @@
-import logging
+import sys
+import pathlib
 
 from twisted.internet import reactor
-from twisted.web import server, resource
+from twisted.python import log
+from twisted.web import server, resource, static
 
-from pubsub import net
+from autobahn.twisted import websocket, resource as autobahn_resource
 
 
-PUB_SUB_PORT = 3000
+WEB_DIR = pathlib.PosixPath(__file__).parent / 'web' / 'dist'
 HTTP_PORT = 8081
 
 
-class Page(resource.Resource):
-    isLeaf = True
+class WebsocketServer(websocket.WebSocketServerProtocol):
+    def onOpen(self):
 
-    def render_GET(self, request):
-        return "<html>Hello, world!</html>".encode()
+        self.factory.register(self)
+
+    def connectionLost(self, reason):
+        self.factory.unregister(self)
+
+    def onMessage(self, payload, isBinary):
+        self.factory.communicate(self, payload, isBinary)
+
+
+class Factory(websocket.WebSocketServerFactory):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.clients = {}
+
+    def register(self, client):
+        self.clients[client.peer] = client
+
+    def unregister(self, client):
+        self.clients.pop(client.peer)
+
+    def communicate(self, client, payload, isBinary):
+        for peer, c in self.clients.items():
+            if not peer == client.peer:
+                c.sendMessage(payload)
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    log.startLogging(sys.stdout)
 
-    logging.info(f'Page will be running on port {HTTP_PORT}')
+    root = static.File(WEB_DIR)
+    factory = Factory(f'ws://0.0.0.0:{HTTP_PORT}')
+    factory.protocol = WebsocketServer
+    resource = autobahn_resource.WebSocketResource(factory)
+    # websockets resource on '/ws' path
+    root.putChild(b'ws', resource)
+
     reactor.listenTCP(HTTP_PORT,
-                      server.Site(Page()),
+                      server.Site(root),
                       interface='0.0.0.0')
 
-    reactor.listenTCP(PUB_SUB_PORT,
-                      net.PubSubFactory(),
-                      interface='0.0.0.0')
-    logging.info(f'PubSub will be running on port {PUB_SUB_PORT}')
-    logging.info('Starting reactor...')
     reactor.run()
 
 

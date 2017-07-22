@@ -1,5 +1,6 @@
 {
    "dependencies": {
+      "push.js": "^1.0.4",
       "react": "^15.6.1",
       "react-dom": "^15.6.1",
       "react-notification-system": "^0.2.14"
@@ -15,8 +16,8 @@
       "webpack": "^3.3.0"
    },
    "scripts": {
-      "test": "eslint",
-      "fix": "eslint --fix",
+      "test": "eslint .",
+      "fix": "eslint --fix .",
       "build": "webpack"
    }
 }
