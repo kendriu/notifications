@@ -41,6 +41,7 @@ class App extends React.Component {
       level: 'error'
     });
   }
+
   _sendNotification(event) {
     event.preventDefault();
     let message = event.target.getElementsByTagName('textarea')[0].value;
@@ -70,4 +71,5 @@ class App extends React.Component {
    }
 
 }
+
 render(<App/>, document.getElementById('app'));
