@@ -14,7 +14,6 @@ HTTP_PORT = 8081
 
 class WebsocketServer(websocket.WebSocketServerProtocol):
     def onOpen(self):
-
         self.factory.register(self)
 
     def connectionLost(self, reason):
